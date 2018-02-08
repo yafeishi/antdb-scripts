@@ -14,7 +14,7 @@ adb_greplog.sh: 给定关键字、日志目录，输出grep 关键字的结果�
 
 adb_clean_monitor_data.sh: 删除antdb manage中存放的历史监控数据。
 
-create_barrier.sh: 执行`create barrie`操作，barrerid为当前时间。
+create_barrier.sh: 执行`create barrier`操作，barrerid为当前时间。
 
 delete_archive_file.sh: 删除归档文件。
 
