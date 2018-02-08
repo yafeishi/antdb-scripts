@@ -52,4 +52,26 @@ Distribute By: HASH(nodename)
 Location Nodes: ALL DATANODES
 ```
 
+采集范围的begintime：上次执行成功的endtime为写入临时文件：/tmp/adblog_sqlinfo_endtime,作为下次执行的begintime。因为是入库成功后才会写这个tmp文件，所以中间如果出错，下次再执行，还是会去最后一次成功执行的时间。
+
+采集范围的endtime：取当前时间。
+
+`del_adblog_sqlinfo.sh` 为删除旧数据并创建明天新表的脚本。根据脚本的第一个参数来决定需要保留多少天的数据。
+
+脚本执行示例在`adblog_python.sh`可以看到。
+
+------
+
+adblog_errlog_1min.py：
+从日志中捞取错误日志，过滤条件为csvlog中 `error_severity` 字段值 不等于 `LOG`。
+输出内容为：
+
+```
+writelogfields = ['nodename', 'log_time', 'user_name', 'database_name', 'connection_from', 'session_id', 'command_tag', 'error_severity', 'message', 'detail','query']
+```
+------
+adblog_connreceived.py：捞出日志中接收连接请求的内容。
+
+adblog_auth.py：捞出日志中授权连接请求的内容。
+
 
