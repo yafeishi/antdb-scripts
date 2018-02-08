@@ -3,6 +3,8 @@
 目前的脚本比较简单，每个脚本处理不同的内容。
 脚本的运行需要依赖python连接postgres的库：psycopg2,该库的使用可以参考：[《python 连接AntDB进行数据库操作》](https://yafeishi.com/archives/pythonconnectantdb.html)
 
+涉及到连接实际环境的，请修改连接信息后再使用。
+
 ------
 
 adblog_sqlinfo.py:
