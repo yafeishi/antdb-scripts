@@ -5,7 +5,10 @@ import psycopg2
 import sys
 import pprint
 
-adb_conn="dbname=postgres user=sh2.2 password=123 host=10.1.226.201 port=17322"
+#adb_conn="dbname=postgres user=dang31 password=123 host=10.11.6.20 port=17322"
+adb_conn="dbname=postgres user=dang31 password=123 host=10.1.226.201 port=17613"
+pg962_conn="dbname=postgres user=danghb password=123 host=10.21.16.14 port=7632"
+
 #conn = psycopg2.connect(database="postgres", user="dang31", password="123", host="10.1.226.201", port="17613")
 
 #conn = psycopg2.connect("dbname=postgres user=sh2.2 password=123 host=10.1.226.201 port=17322")
@@ -26,7 +29,10 @@ else:
 #conn = psycopg2.connect(database="postgres", user="dang31", password="123", host="10.1.226.201", port="17613")
     cur = conn.cursor()
 #该程序创建一个光标将用于整个数据库使用Python编程。
-
+print ("version:")
+cur.execute("select version();")  
+rows = cur.fetchall()
+pprint.pprint(rows)
 print ("create  table")
 cur.execute("create table t_test (id int,name text);")   
 print ("insert into table")
@@ -35,7 +41,12 @@ cur.statusmessage
 cur.execute("insert into t_test (id,name) values (%s,%s)",(3,'b')) 
 cur.mogrify("insert into t_test (id,name) values (%s,%s)",(3,'b')) 
 cur.execute("select * from t_test;")
+print ("fetchone")
+row = cur.fetchone()
+pprint.pprint(row)
+cur.execute("select * from t_test;")
 rows = cur.fetchall()
+print ("fetchall")
 pprint.pprint(rows)
 print ("delete from table")
 cur.execute("delete from t_test where id=%s",(3,)) 
