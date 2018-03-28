@@ -58,6 +58,8 @@ cur.execute("update  t_test set name=%s where id=%s",('c',1))
 cur.execute("select * from t_test;")
 rows = cur.fetchall()
 pprint.pprint(rows)
+print ("change share key  ")
+cur.execute("alter table t_test distribute by hash(name) ");
 print ("drop  table")
 cur.execute("drop table if EXISTS  t_test ");
 
