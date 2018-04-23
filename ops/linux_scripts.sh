@@ -636,3 +636,5 @@ https://www.sysdig.org/wiki/sysdig-examples/#performance
 netstat -n | awk '/^tcp/ {++S[$NF]} END {for(a in S) print a, S[a]}'
 TIME_WAIT的连接数是需要注意的一点。此值过高会占用大量连接，影响系统的负载能力。需要调整参数，以尽快的释放time_wait连接。
 
+echo -e '\xf'  # 从乱码中恢复
+echo -e '\xe'  # 变乱码
