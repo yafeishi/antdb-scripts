@@ -376,6 +376,22 @@ group by relkind
 order by 2 desc;
 
 
+select *
+from 
+(
+SELECT n.nspname as "Schema",
+  c.relname as "Name",
+  pg_catalog.pg_get_userbyid(c.relowner) as "Owner",
+  pg_catalog.pg_total_relation_size(c.oid)/1024/1024 as Size_MB
+  FROM pg_catalog.pg_class c
+     LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+WHERE c.relkind IN ('r')
+      AND n.nspname <> 'pg_catalog'
+      AND n.nspname <> 'information_schema'
+      AND n.nspname !~ '^pg_toast'
+) as s
+order by s.Size_MB desc;
+
 SELECT n.nspname,c.relkind,count(*)
 FROM   pg_catalog.pg_class c,
        pg_catalog.pg_namespace n

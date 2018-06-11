@@ -66,8 +66,9 @@ def get_sqlinfo(filename):
                     outline = {'nodename':nodename, 'log_time':logtime, 'user_name':username, 'database_name': dbname, 'connection_from':connection_from, 'session_id':session_id,'command_tag':command_tag, 'statement':statement, 'parameter':parameter, 'duration':duration}
                     tables.append(outline)
                 else:
-                    next(csvfile)
+                    #next(csvfile)
                     #csvfile.next() 
+                    continue
         except StopIteration:
             print "StopIteration"
         finally:
