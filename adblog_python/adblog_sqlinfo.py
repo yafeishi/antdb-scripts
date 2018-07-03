@@ -47,6 +47,8 @@ def get_sqlinfo(filename):
                     command_tag  = row['command_tag']
                     session_id = row['session_id']
                     message = row['message']
+                    statement = ''
+                    duration = ''
                     if ("duration" in message) :
                         duration = re.findall(r'duration: (\d+\.\d+) ms', message)[0]
                         if ("execute" in message): 
