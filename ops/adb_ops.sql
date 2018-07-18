@@ -1234,12 +1234,6 @@ pgxc_clean -v -a -p 15433-U
 
 pgxc_clean -U so1 -d shcrm1  -f -v -a -p 5432 
 
-
-
- 
- 
-
- 
  
 ---- gp
 --表数据在segment上的分布
