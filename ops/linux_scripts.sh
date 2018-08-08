@@ -558,9 +558,9 @@ strace -tt -T -v -f  -o /data/strace.log -s 1024 -p 21634
 
 strace -f -F -o ~/straceout.txt myserver
 -f -F选项告诉strace同时跟踪fork和vfork出来的进程，-o选项把所有strace输出写到~/straceout.txt里 面，myserver是要启动和调试的程序。
-strace -o output.txt -T -tt -e trace=all -p 23349
+strace -o output.txt -T -tt -e trace=all -p 28398
 跟踪28979进程的所有系统调用（-e trace=all），并统计系统调用的花费时间，以及开始时间（并以可视化的时分秒格式显示），最后将记录结果存在output.txt文件里面。
-[root@adb02 ~]# strace -T -r -c -p 26486
+[root@adb02 ~]# strace -T -r -c -p 28398
 Process 30838 attached
 ^CProcess 30838 detached
 % time     seconds  usecs/call     calls    errors syscall
@@ -638,3 +638,9 @@ TIME_WAIT的连接数是需要注意的一点。此值过高会占用大量连�
 
 echo -e '\xf'  # 从乱码中恢复
 echo -e '\xe'  # 变乱码
+
+
+yum install -y blktrace
+blktrace -d /dev/sdb1
+blkparse -i sdb1 -d sdb1.blktrace.bin
+btt -i sdb1.blktrace.bin|more

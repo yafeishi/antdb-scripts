@@ -1155,9 +1155,23 @@ SELECT blocked_locks.pid     AS blocked_pid,
         AND blocking_locks.objid IS NOT DISTINCT FROM blocked_locks.objid
         AND blocking_locks.objsubid IS NOT DISTINCT FROM blocked_locks.objsubid
         AND blocking_locks.pid != blocked_locks.pid
- 
     JOIN pg_catalog.pg_stat_activity blocking_activity ON blocking_activity.pid = blocking_locks.pid
    WHERE NOT blocked_locks.GRANTED;
+
+select c.relname,
+       l.mode,
+       l.pid,
+       l.granted,
+       substr(a.query,1,30),
+       a.xact_start,
+       a.client_addr
+from pg_class c,
+     pg_locks l,
+     pg_stat_activity a
+where c.oid = l.relation
+and c.relnamespace >= 2200
+and l.pid=a.pid
+; 
    
 ## optimization
 select
