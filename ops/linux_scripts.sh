@@ -504,7 +504,7 @@ sysctl -p
 
 # tar
 tar cvf adb-2.1.tar.gz adb-2.1
-
+tar czvf adb-2.1.tar.gz adb-2.1
 
 # lsof
 lsof /bin/bash   查找某个文件相关的进程
