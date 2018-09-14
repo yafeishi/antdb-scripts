@@ -1,5 +1,4 @@
 #!/bin/bash 
-# sh get_ora_object.sh  10.10.0.130 bhis_gw_new bhis_gw_new
 # https://docs.oracle.com/cd/B28359_01/appdev.111/b28419/d_metada.htm#BGBJBFGE
 # https://stackoverflow.com/questions/22018804/oracle-sql-developer-4-0-how-to-remove-double-quotes-in-scripts
 # https://asktom.oracle.com/pls/asktom/f?p=100:11:0::::P11_QUESTION_ID:9534496000346133031
