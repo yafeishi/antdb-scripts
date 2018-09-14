@@ -644,3 +644,9 @@ yum install -y blktrace
 blktrace -d /dev/sdb1
 blkparse -i sdb1 -d sdb1.blktrace.bin
 btt -i sdb1.blktrace.bin|more
+
+
+
+
+# PS1
+export PS1='[\u@\h \W]\$'
