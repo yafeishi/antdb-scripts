@@ -52,14 +52,16 @@ kernel.sysrq=0
 numa=off
 elevator=deadline
 
-rhel7
+rhel7:
 /etc/default/grub
 GRUB_CMDLINE_LINUX="crashkernel=auto rd.lvm.lv=rhel/root rd.lvm.lv=rhel/swap rhgb quiet numa=off"
 /boot/grub2/grub.cfg
 linux16 /vmlinuz-3.10.0-327.el7.x86_64 root=/dev/mapper/rhel-root ro crashkernel=auto rd.lvm.lv=rhel/root rd.lvm.lv=r
 hel/swap rhgb quiet LANG=en_US.UTF-8 numa=off
 
+推荐使用这种方式：
+grubby --update-kernel=ALL --args="numa=off"  # 该命令修改的是这个文件：/etc/grub2.cfg
+grub2-mkconfig -o /etc/grub2.cfg
+这种方式修改后，重启主机生效。
 
-#
-sysctl: setting key "net.core.somaxconn": Invalid argument
-
+echo 0 >  /proc/sys/kernel/numa_balancing
