@@ -53,11 +53,10 @@ numa=off
 elevator=deadline
 
 rhel7:
-/etc/default/grub
-GRUB_CMDLINE_LINUX="crashkernel=auto rd.lvm.lv=rhel/root rd.lvm.lv=rhel/swap rhgb quiet numa=off"
-/boot/grub2/grub.cfg
-linux16 /vmlinuz-3.10.0-327.el7.x86_64 root=/dev/mapper/rhel-root ro crashkernel=auto rd.lvm.lv=rhel/root rd.lvm.lv=r
-hel/swap rhgb quiet LANG=en_US.UTF-8 numa=off
+/etc/grub2.cfg 
+linux16 /boot/vmlinuz-3.10.0-693.el7.x86_64 root=UUID=31d03041-a43d-4bd4-b470-1fa88fa76e3f ro nomodeset rhgb quiet numa=off
+linux16 /boot/vmlinuz-0-rescue-4ae5528205a84cacaecbcd9182e96bd6 root=UUID=31d03041-a43d-4bd4-b470-1fa88fa76e3f ro nomodeset rhgb quiet numa=off
+
 
 推荐使用这种方式：
 grubby --update-kernel=ALL --args="numa=off"  # 该命令修改的是这个文件：/etc/grub2.cfg
