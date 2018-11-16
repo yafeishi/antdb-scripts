@@ -1,5 +1,5 @@
 # cat
-cat /proc/17040/environ | xargs -0 -n 1
+cat /proc/145561/environ | xargs -0 -n 1
 
 
 # rpm -prefix
@@ -23,7 +23,7 @@ yum repolist
 yum list
 yum info
 yum deplist package1 #查看程序package1依赖情况
-yum list installed //列出所有已安装的软件包 
+yum list installed #列出所有已安装的软件包 
 yum list extras  #列出所有已安装但不在 Yum Repository 内的软件包 
 yum info extras #列出所有已安装但不在 Yum Repository 内的软件包信息 
 
