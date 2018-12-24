@@ -173,6 +173,14 @@ hdparm -tT /dev/sdb1
 dd if=/dev/zero of=toto bs=8k count=244140
 grep -E '^model name|^cpu MHz' /proc/cpuinfo
 
+dd if=/dev/zero of=toto bs=8k count=1024   
+
+time dd if=/dev/zero of=~/test.data bs=8k count=200000 conv=fdatasync  oflag=direct
+
+200000+0 records in
+200000+0 records out
+1638400000 bytes (1.6 GB) copied, 19.7344 s, 83.0 MB/s
+
 ## centos 7 防火墙
 systemctl stop firewalld.service
 systemctl disable firewalld.service
@@ -650,3 +658,11 @@ btt -i sdb1.blktrace.bin|more
 
 # PS1
 export PS1='[\u@\h \W]\$'
+
+# change user name
+usermod -l newuser olduser 
+usermod -d /ssd/home/newuser -m newuser
+groupmod -n newuser olduser
+
+# change user passwd 
+echo "newuser"|passwd --stdin newuser

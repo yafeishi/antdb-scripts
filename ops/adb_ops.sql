@@ -1271,3 +1271,37 @@ PORT=$4
 ./run_tpch.sh  ./danghb-0519 postgres danghb 7732 > 1.out 2>&1 &
 
 -- gp expend  在现在有
+
+
+
+
+
+# 
+select 'alter table '||schemaname||'.'||tablename||' owner to smart;'--,tablename,schemaname,tableowner
+from pg_tables
+where 1=1
+and schemaname='iot'
+and tableowner='postgres';
+
+# 赋权
+grant usage on schema bmsql5_ora_fdw to adb_meishan;
+grant select on all tables in schema bmsql5_ora_fdw to adb_meishan;
+alter default privileges for user bmsql5_ora_fdw in schema bmsql5_ora_fdw grant select on tables to adb_meishan;
+
+
+--测试磁盘速度
+drop table b1;
+create table b1 (id int primary key);
+insert into b1 select generate_series(1, 100000);
+INSERT 0 100000
+Time: 757.204 ms
+drop table b2;
+create table b2 (id int primary key);
+insert into b2 select generate_series(1, 1000000);
+INSERT 0 1000000
+Time: 4981.259 ms (00:04.981)
+drop table b3;
+create table b3 (id int );
+insert into b3 select generate_series(1, 1000000);
+INSERT 0 1000000
+Time: 3139.900 ms (00:03.140)
