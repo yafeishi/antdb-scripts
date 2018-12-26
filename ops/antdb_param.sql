@@ -5,8 +5,8 @@ SET COORDINATOR ALL (maintenance_work_mem = '1024MB');
 SET COORDINATOR ALL (work_mem = '128MB' );
 SET COORDINATOR ALL (max_connections = 1000 );
 SET COORDINATOR ALL (max_prepared_transactions = 1000 );
-SET COORDINATOR ALL (max_parallel_workers = 8 );
-SET COORDINATOR ALL (max_parallel_workers_per_gather = 8 );
+SET COORDINATOR ALL (max_parallel_workers = 10 );
+SET COORDINATOR ALL (max_parallel_workers_per_gather = 10 );
 ----
 SET COORDINATOR ALL (log_truncate_on_rotation = on);
 SET COORDINATOR ALL (log_rotation_age = '7d');
@@ -66,8 +66,8 @@ SET DATANODE ALL (max_connections = 3000 );
 SET DATANODE ALL (max_prepared_transactions = 3000 );
 SET DATANODE ALL (wal_keep_segments = 128 );
 SET DATANODE ALL (effective_cache_size = '15GB' );
-SET DATANODE ALL (max_parallel_workers = 8 );
-SET DATANODE ALL (max_parallel_workers_per_gather = 8 );
+SET DATANODE ALL (max_parallel_workers = 10 );
+SET DATANODE ALL (max_parallel_workers_per_gather = 10 );
 ----
 SET DATANODE ALL (log_truncate_on_rotation = on);
 SET DATANODE ALL (log_rotation_age = '7d' );
