@@ -82,7 +82,6 @@ SET DATANODE ALL (superuser_reserved_connections = 13 );
 SET DATANODE ALL (track_counts = on );
 SET DATANODE ALL (track_activity_query_size = 2048);
 SET DATANODE ALL (max_locks_per_transaction = 64);
-SET DATANODE ALL (enable_nestloop = off );
 SET DATANODE ALL (constraint_exclusion = on );
 set DATANODE ALL (wal_level='replica');
 SET DATANODE ALL (max_wal_senders = 5 );
