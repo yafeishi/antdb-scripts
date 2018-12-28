@@ -96,7 +96,7 @@ SET DATANODE ALL (autovacuum_vacuum_cost_limit = -1 );
 SET DATANODE ALL (autovacuum_vacuum_cost_delay = '30ms' );
 SET DATANODE ALL (statement_timeout = 0 );
 SET DATANODE ALL (lock_timeout = '180s' );
-SET DATANODE ALL (fsync = on);
+SET DATANODE ALL (fsync = off);
 SET DATANODE ALL (synchronous_commit = off);
 SET DATANODE ALL (wal_sync_method = open_datasync );
 SET DATANODE ALL (full_page_writes = off);
@@ -118,4 +118,5 @@ gtm:
 SET GTM ALL (shared_buffers = '2GB' );
 SET GTM ALL(max_connections = 3000);
 SET GTM ALL(max_prepared_transactions = 3000);
+SET GTM ALL (fsync = off);
 
