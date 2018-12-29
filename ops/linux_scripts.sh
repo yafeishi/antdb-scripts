@@ -666,3 +666,7 @@ groupmod -n newuser olduser
 
 # change user passwd 
 echo "newuser"|passwd --stdin newuser
+
+
+# 临时挂载目录
+mount none /data/tmpdir -t tmpfs -o size=10M
