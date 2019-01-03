@@ -669,4 +669,6 @@ echo "newuser"|passwd --stdin newuser
 
 
 # 临时挂载目录
-mount none /data/tmpdir -t tmpfs -o size=10M
+mount none /data/tmpdir -t tmpfs -o size=100M
+sudo chown -R danghb:danghb /data/tmpdir
+umount /data/tmpdir
