@@ -139,7 +139,7 @@ sar -f /var/log/sa/sa03
 #查看指定文件1/5/15分钟平均负载记录
 sar -q -f /var/log/sa/sa03
 #查看指定文件7点到9点CPU使用记录，如要看负载加参数-q
-sar -s 07:00:00 -e 10:00:00 -f /var/log/sa/sa03
+ddsar -s 07:00:00 -e 10:00:00 -f /var/log/sa/sa03
 
 sar -q: 查看平均负载
 sar -r： 指定-r之后，可查看物理内存使用状况；
@@ -386,7 +386,7 @@ cat /etc/redhat-release
 
 ## ssh  no password
 ssh-keygen
-ssh-copy-id -i .ssh/id_rsa.pub host201
+ssh-copy-id -i ~/.ssh/id_rsa.pub host201
 ssh-copy-id -i .ssh/id_rsa.pub localhost3
 ## 禁止root远程登录
 /etc/ssh/sshd_config
@@ -672,3 +672,15 @@ echo "newuser"|passwd --stdin newuser
 mount none /data/tmpdir -t tmpfs -o size=100M
 sudo chown -R danghb:danghb /data/tmpdir
 umount /data/tmpdir
+
+
+# telnet
+echo "" | telnet 101.199.97.65 62715   #telnet 后直接退出，特别是在端口可连通的时候，很有用。
+
+# random
+function rand(){  
+        min=$1  
+        max=$(($2-$min+1))
+        num=$(date +%s%N)
+        echo $(($num%$max+$min))
+}

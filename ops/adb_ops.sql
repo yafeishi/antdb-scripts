@@ -325,6 +325,15 @@ order by 3 desc
 ) s
 ;
 
+SELECT
+   relname AS table_name,
+   pg_size_pretty(pg_total_relation_size(relid)) AS total,
+   pg_size_pretty(pg_relation_size(relid)) AS internal,
+   pg_size_pretty(pg_table_size(relid) - pg_relation_size(relid)) AS external,
+   pg_size_pretty(pg_indexes_size(relid)) AS indexes
+    FROM pg_catalog.pg_statio_user_tables ORDER BY pg_total_relation_size(relid) DESC;
+
+
 
 SELECT n.nspname as schema_name,
        c.relname,
@@ -647,6 +656,9 @@ explain (verbose,costs false)
 
 select pg_cancel_backend(8880);
 select pg_terminate_backend();
+
+
+# sessionid
 
 SELECT to_hex(EXTRACT(EPOCH FROM backend_start)::integer) || '.' ||
        to_hex(pid)
@@ -1162,9 +1174,11 @@ select c.relname,
        l.mode,
        l.pid,
        l.granted,
-       substr(a.query,1,30),
+       substr(a.query,1,100),
        a.xact_start,
-       a.client_addr
+       a.client_addr,
+       to_hex(EXTRACT(EPOCH FROM a.backend_start)::integer) || '.' ||
+       to_hex(a.pid)
 from pg_class c,
      pg_locks l,
      pg_stat_activity a
@@ -1305,3 +1319,23 @@ create table b3 (id int );
 insert into b3 select generate_series(1, 1000000);
 INSERT 0 1000000
 Time: 3139.900 ms (00:03.140)
+
+
+#psql  PROMPT1
+\set PROMPT1 '(%n@%M:%>) %[%033[00;33m%]%`date +%H:%M:%S`%[%033[00m%] [%[%033[01;31m%]%/%[%[%033[00m%]] > '
+\set PROMPT1 '%`date +%H:%M:%S` >'
+(bmsql5@[local]:11010) 16:25:44 [bmsql5] > 
+\set PROMPT1 '(%n@@%/:%>) `date +%H:%M:%S` %#'
+
+
+# session
+select usename,client_addr,xact_start,wait_event,state,query
+from pg_stat_activity 
+where state<>'idle';
+
+# get function cursor out
+begin;
+select AP_LAST_FREEZING_REVIEW('2018','12','118P9006');
+
+FETCH all in "<unnamed portal 1>";
+rollback;
