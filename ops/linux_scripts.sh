@@ -684,3 +684,15 @@ function rand(){
         num=$(date +%s%N)
         echo $(($num%$max+$min))
 }
+
+# generate core test
+#include <stdio.h>
+
+int main()
+{
+  char *p = NULL;
+  printf("%s\n", *p);
+
+}
+gcc -g -o core_test core_test.c
+./core_test
