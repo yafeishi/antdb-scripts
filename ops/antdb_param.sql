@@ -1,3 +1,22 @@
+-- mgr:
+export mgrdata=""
+cat  >> ${mgrdata}/postgresql.conf << EOF
+port = 18610
+listen_addresses = '*'
+log_directory = 'pg_log'
+log_destination ='csvlog'
+logging_collector = on
+log_min_messages = error
+max_wal_senders = 3
+hot_standby = on
+wal_level = hot_standby
+EOF
+
+cat  >> ${mgrdata}/pg_hba.conf << EOF
+host    replication     shboss        10.0.0.0/8                 trust
+host    all             all          10.0.0.0/8               trust
+EOF
+
 --coord:
 --Modify according to actual situation
 SET COORDINATOR ALL (shared_buffers = '4GB' );
@@ -52,7 +71,7 @@ SET COORDINATOR ALL (checkpoint_completion_target=0.9 );
 SET COORDINATOR ALL (max_wal_size = 10240);
 SET COORDINATOR ALL (archive_mode = on);
 SET COORDINATOR ALL (archive_command = '/bin/date');
-SET COORDINATOR ALL (max_stack_depth = '8MB');
+--SET COORDINATOR ALL (max_stack_depth = '8MB');
 SET COORDINATOR ALL (bgwriter_delay = '10ms');
 SET COORDINATOR ALL (bgwriter_lru_maxpages = 1000 );
 SET COORDINATOR ALL (bgwriter_lru_multiplier = 10.0 );
@@ -110,14 +129,14 @@ SET DATANODE ALL (checkpoint_completion_target = 0.9);
 SET DATANODE ALL (max_wal_size = 10240);
 SET DATANODE ALL (archive_mode = on );
 SET DATANODE ALL (archive_command = '/bin/date' );
-SET DATANODE ALL (max_stack_depth = '8MB' );
+--SET DATANODE ALL (max_stack_depth = '8MB' );
 SET DATANODE ALL (max_prepared_transactions = 4800);
 SET DATANODE ALL (bgwriter_delay = '10ms' );
 SET DATANODE ALL (bgwriter_lru_maxpages = 1000);
 SET DATANODE ALL (bgwriter_lru_multiplier = 10.0);
 
 
-gtm:
+--gtm:
 SET GTM ALL (shared_buffers = '2GB' );
 SET GTM ALL(max_connections = 3000);
 SET GTM ALL(max_prepared_transactions = 3000);

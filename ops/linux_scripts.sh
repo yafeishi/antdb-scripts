@@ -1,5 +1,5 @@
 # cat
-cat /proc/145561/environ | xargs -0 -n 1
+cat /proc/134619/environ | xargs -0 -n 1
 
 
 # rpm -prefix
@@ -696,3 +696,12 @@ int main()
 }
 gcc -g -o core_test core_test.c
 ./core_test
+
+
+
+# split file
+split -b 1024MB -d part.tbl.bak split/part.tbl.bak
+
+
+# linux 如何显示一个文件的某几行(中间几行)
+sed -n '5,10p' filename 这样你就可以只查看文件的第5行到第10行。
