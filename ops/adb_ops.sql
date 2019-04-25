@@ -1339,3 +1339,9 @@ select AP_LAST_FREEZING_REVIEW('2018','12','118P9006');
 
 FETCH all in "<unnamed portal 1>";
 rollback;
+
+# 表数据分布
+select n.node_name,count(*) 
+from emp e,pgxc_node n
+where e.xc_node_id=n.node_id
+group by 1;
