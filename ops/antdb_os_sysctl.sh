@@ -1,4 +1,49 @@
 
+#关闭numa和transparent_hugepage
+
+# redhat/centos 6
+# vim /etc/grub.conf
+default=0
+timeout=5
+splashimage=(hd0,0)/grub/splash.xpm.gz
+hiddenmenu
+title Red Hat Enterprise Linux 6 (2.6.32-504.el6.x86_64)
+        root (hd0,0)
+        kernel /vmlinuz-2.6.32-504.el6.x86_64 ro root=/dev/mapper/vg_os-lv_os rd_NO_LUKS LANG=en_US.UTF-8 rd_NO_MD SYSFONT=latarcyrheb-sun16 crashkernel=auto rd_LVM_LV=vg_os/lv_os  KEYBOARDTYPE=pc KEYTABLE=us rd_NO_DM rhgb quiet numa=off transparent_hugepage=never
+# 关闭服务
+service tuned stop
+chkconfig tuned off
+service ktune stop
+chkconfig ktune off
+
+
+# redhat/centos 7
+grubby --update-kernel=ALL --args="numa=off transparent_hugepage=never"  # 该命令修改的是这个文件：/etc/grub2.cfg
+grub2-mkconfig 
+
+# 关闭服务
+systemctl stop tuned
+systemctl disable tuned
+
+这种方式修改后，重启主机生效。
+
+# 重启后，验证grub的cmdline：
+cat /proc/cmdline
+
+
+#检查 numa
+numactl --hardware
+预期结果为：
+available: 1 nodes (0)
+
+#检查 transparent_hugepage
+cat /sys/kernel/mm/transparent_hugepage/enabled
+预期结果为：
+always madvise [never]
+
+
+
+cat >>  /etc/sysctl.conf << EOF
 # add for antdb
 kernel.shmmax=137438953472 137438953472
 kernel.shmall=53689091
@@ -46,23 +91,8 @@ vm.zone_reclaim_mode=0
 kernel.core_uses_pid=1
 kernel.core_pattern=/data1/antdb/coredump/core-%e-%p-%t
 kernel.sysrq=0
+EOF
 
+# 生效
+sysctl -p
 
-
-
-#  /etc/grub.conf
-numa=off
-elevator=deadline
-
-rhel7:
-/etc/grub2.cfg 
-linux16 /boot/vmlinuz-3.10.0-693.el7.x86_64 root=UUID=31d03041-a43d-4bd4-b470-1fa88fa76e3f ro nomodeset rhgb quiet numa=off
-linux16 /boot/vmlinuz-0-rescue-4ae5528205a84cacaecbcd9182e96bd6 root=UUID=31d03041-a43d-4bd4-b470-1fa88fa76e3f ro nomodeset rhgb quiet numa=off
-
-
-推荐使用这种方式：
-grubby --update-kernel=ALL --args="numa=off"  # 该命令修改的是这个文件：/etc/grub2.cfg
-grub2-mkconfig -o /etc/grub2.cfg
-这种方式修改后，重启主机生效。
-
-echo 0 >  /proc/sys/kernel/numa_balancing

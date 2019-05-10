@@ -677,6 +677,8 @@ umount /data/tmpdir
 # telnet
 echo "" | telnet 101.199.97.65 62715   #telnet 后直接退出，特别是在端口可连通的时候，很有用。
 
+for ip in `arp -a|awk '{print $2}'|sed 's/(//g;s/)//g'`; do  echo ""| telnet $ip 80 ; done;
+
 # random
 function rand(){  
         min=$1  
