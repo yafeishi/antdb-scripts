@@ -1,4 +1,19 @@
 
+#关闭防火墙
+
+
+# centos 6
+servcie iptables stop 
+chkconfig iptables off
+
+# centos 7
+systemctl stop firewalld.service
+systemctl disable firewalld.service
+
+# suse12
+systemctl stop SuSEfirewall2.service
+systemctl disable SuSEfirewall2.service
+
 #关闭numa和transparent_hugepage
 
 # redhat/centos 6
