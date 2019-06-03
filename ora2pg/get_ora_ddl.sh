@@ -12,6 +12,7 @@ log_print()
 
 get_object_ddl ()
 {
+export NLS_LANG="AMERICAN_AMERICA.ZHS16GBK"
 sqlplus -silent /nolog <<EOF > /dev/null 2>${logfile}
 conn ${ora_conn}
 set echo off;
