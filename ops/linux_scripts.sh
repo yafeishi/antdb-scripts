@@ -710,3 +710,12 @@ sed -n '5,10p' filename 这样你就可以只查看文件的第5行到第10行�
 
 # start simple http server
 python -m SimpleHTTPServer 3000
+
+
+
+# docker 常用命令：
+docker image ls 列出当前已经下载的镜像
+docker pull centos:6.7  拉centos 6.7 的镜像
+docker run -it -v /data/postgres/rpmbuild:/rpmbuild centos:6.7 bash  启动docker 镜像
+docker attach  contain id 进入镜像
+* 
