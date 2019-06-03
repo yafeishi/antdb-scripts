@@ -612,7 +612,8 @@ SELECT
   sum(heap_blks_hit) / (sum(heap_blks_hit) + sum(heap_blks_read)) as ratio
 FROM 
   pg_statio_user_tables; 
-  
+
+
   
 SELECT 
   relname, 
@@ -724,6 +725,8 @@ pg_dump -Fp hongpay --verbose -f hongpay.sql
 
 pg_dumpall -s -f hongpay_metadata.sql 
 
+pg_dump -d dmp -U dmpcs -t tasknode -f tasknode.sql -v
+
 
 #!/bin/bash
 
@@ -748,6 +751,27 @@ where 1=1
 	and c.relnamespace = n.oid
 	and n.nspname like '%user%'
 	and c.relname like '%%';
+
+select c.owner,c.Type,count(*)
+from
+(
+select 
+	n.nspname as owner,
+	c.relname as Name,
+	CASE c.relkind WHEN 'r' THEN 'table' WHEN 'v' THEN 'view' WHEN 'm' THEN 'materialized view' WHEN 'i' THEN 'index' WHEN 'S' THEN 'sequence' WHEN 's' THEN 'special'	WHEN 'f' THEN 'foreign table' 
+		END as Type,
+	c.relpages
+from 
+	pg_class c,
+	pg_namespace n
+where 1=1
+	and c.relnamespace = n.oid
+	and n.nspname like '%ucr_sta%'
+	and c.relname like '%%'
+) c
+group by  c.owner,c.Type
+order by  c.owner,c.Type
+;
  
 -- table
 select * 
@@ -967,6 +991,15 @@ from
 	pg_proc p
 where 1=1
 	and p.proname like '%test%';
+
+
+-- plorasql function 
+select p.pronamespace::regnamespace,l.lanname,p.proname,p.proargmodes,p.proargnames
+from pg_proc p ,pg_language l
+where 1=1
+and p.prolang=l.oid
+and l.lanname='plorasql'
+and p.pronamespace::regnamespace::text like 'ucr_sta1';
 	
 -- constraints
 
@@ -1206,6 +1239,12 @@ select datname, usename, application_name, client_addr,
       from pg_stat_activity where state = 'idle' and waiting = 'f';   
       
       
+
+select datname, usename, application_name, client_addr,
+             client_hostname, client_port, state_change as end_time,
+             state_change-query_start as response_time, query,wait_event
+      from pg_stat_activity where state <>'idle';   
+      
       
 # sequence 
 2.PG序列的应用 
@@ -1343,5 +1382,65 @@ rollback;
 # 表数据分布
 select n.node_name,count(*) 
 from emp e,pgxc_node n
-where e.xc_node_id=n.node_id
+where e.xc_node_id=n.node_id 
 group by 1;
+
+
+create node dn2_1 with (type='datanode',host='130.10.8.220',port=14551);
+create node dn3_1 with (type='datanode',host='130.10.8.221',port=14561);
+
+
+# haproxy
+make PREFIX=/data/antdb/haproxy TARGET=linux2628
+make install PREFIX=/data/antdb/haproxy
+mkdir -p /data/antdb/haproxy/conf
+
+global
+	log 127.0.0.1 local2
+	daemon
+	maxconn 4000
+	pidfile /data/antdb/haproxy/conf/haproxy.pid
+defaults
+	mode tcp
+	retries 5
+	log global
+	option redispatch
+	timeout connect 600s
+	timeout client  600s
+	timeout server  600s
+listen  antdb
+bind 0.0.0.0:5432
+mode tcp
+balance roundrobin
+server cd1 197.0.3.166:5432 check
+server cd2 197.0.3.167:5432 check
+server cd3 197.0.3.168:5432 check
+server cd4 197.0.3.169:5432 check
+
+vi /etc/rsyslog.conf
+# udp
+$ModLoad imudp
+$UDPServerRun 514
+#haproxy
+local2.*                                 /var/log/haproxy.log
+
+
+haproxy -f /data/antdb/haproxy/conf/haproxy.cfg -sf `cat haproxy.pid`
+
+
+# plpgsql do
+do $$
+DECLARE cur record;
+begin
+    for cur in (select * from t_proc_test where id < 5) loop
+        raise notice 'test cursor loop, id is: %s',cur.id;
+    end loop;
+    for cur in (select * from t_proc_test where id < 5) loop
+        raise notice 'test cursor loop, id is: %s',cur.id;
+    end loop;
+end$$;
+
+
+# ora_cast
+select  castsource::regtype,casttarget::regtype,castfunc::regproc,casttruncfunc::regproc,castcontext from ora_cast order by 1;
+select  castsource::regtype,casttarget::regtype,castfunc::regproc,castcontext,castmethod from pg_cast order by 1;
