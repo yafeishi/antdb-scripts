@@ -1211,7 +1211,7 @@ select c.relname,
        a.xact_start,
        a.client_addr,
        to_hex(EXTRACT(EPOCH FROM a.backend_start)::integer) || '.' ||
-       to_hex(a.pid)
+       to_hex(a.pid) as "session_id"
 from pg_class c,
      pg_locks l,
      pg_stat_activity a
@@ -1219,6 +1219,9 @@ where c.oid = l.relation
 and c.relnamespace >= 2200
 and l.pid=a.pid
 ; 
+
+select locktype,relation::regclass,pid,mode,granted
+from pg_locks;
    
 ## optimization
 select
@@ -1368,7 +1371,16 @@ Time: 3139.900 ms (00:03.140)
 
 
 # session
-select usename,client_addr,xact_start,wait_event,state,query
+select pid,usename,client_addr,xact_start,wait_event,state,query
+from pg_stat_activity 
+where state<>'idle';
+
+select pid,xact_start,wait_event,state,substr(query,1,70)
+from pg_stat_activity 
+where state<>'idle';
+
+ 
+select pid,now()-xact_start as duration,wait_event,state,substr(query,1,50)
 from pg_stat_activity 
 where state<>'idle';
 
@@ -1444,3 +1456,26 @@ end$$;
 # ora_cast
 select  castsource::regtype,casttarget::regtype,castfunc::regproc,casttruncfunc::regproc,castcontext from ora_cast order by 1;
 select  castsource::regtype,casttarget::regtype,castfunc::regproc,castcontext,castmethod from pg_cast order by 1;
+
+
+# table without pk
+select relname
+from pg_class c1
+where 1=1
+and c1.oid not in (
+  select conrelid 
+  from pg_constraint c2
+  where c2.contype in ('p')
+  )
+and c1.relkind='r'
+and c1.relowner::regrole::text='dmpcs';
+
+# jit test data
+CREATE TABLE t_llvm1(a int4, b int4, info text, ctime timestamp(6) without time zone);
+INSERT INTO t_llvm1 (a,b,info,ctime) SELECT n,n*2,n||'_llvm1',clock_timestamp() FROM generate_series(1,50000000) n;
+EXPLAIN ANALYZE SELECT count(*),sum(a) FROM t_llvm1 WHERE (a+b) > 10;
+
+# psql bind plan
+PREPARE q1 (numeric) AS
+     select * from reqmatrixlist req where req.biztype = $1;
+explain (analyze,verbose) EXECUTE  q1(7);

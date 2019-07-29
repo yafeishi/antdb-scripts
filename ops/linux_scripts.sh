@@ -16,6 +16,8 @@ rpm -ivh --force --nodeps  telnet-server-0.17-38.el5.i386.rpm
 
 rpm -ivh --force --nodeps *.rpm
 
+rpm -qpR antdb-4.0.70477ffb-centos6.3.rpm  检查rpm包的依赖。
+
 
 # yum
 yum install -y flex
@@ -716,6 +718,20 @@ python -m SimpleHTTPServer 3000
 # docker 常用命令：
 docker image ls 列出当前已经下载的镜像
 docker pull centos:6.7  拉centos 6.7 的镜像
+docker pull gpmidi/centos-6.3  
 docker run -it -v /data/postgres/rpmbuild:/rpmbuild centos:6.7 bash  启动docker 镜像
 docker attach  contain id 进入镜像
-* 
+docker ps 
+通过dockerfile构建加强镜像
+docker build -t antdb_centos:6.7 -f c67.dockerfile .
+
+# 加后缀
+for f in `ls *repo`
+do 
+    mv $f $f.bak
+done
+# 删后缀
+for f in `ls *bak`
+do 
+    mv $f `echo $f |sed 's/\.bak//'`
+done
