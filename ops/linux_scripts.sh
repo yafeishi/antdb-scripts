@@ -719,7 +719,7 @@ python -m SimpleHTTPServer 3000
 docker image ls 列出当前已经下载的镜像
 docker pull centos:6.7  拉centos 6.7 的镜像
 docker pull gpmidi/centos-6.3  
-docker run -it -v /data/postgres/rpmbuild:/rpmbuild centos:6.7 bash  启动docker 镜像
+docker run -it -v /data/postgres/rpmbuild:/rpmbuild centos:6.9 bash  启动docker 镜像
 docker attach  contain id 进入镜像
 docker ps 
 通过dockerfile构建加强镜像
