@@ -735,3 +735,14 @@ for f in `ls *bak`
 do 
     mv $f `echo $f |sed 's/\.bak//'`
 done
+
+# get random port 
+# https://unix.stackexchange.com/questions/55913/whats-the-easiest-way-to-find-an-unused-local-port
+#!/bin/bash
+read LOWERPORT UPPERPORT < /proc/sys/net/ipv4/ip_local_port_range
+while :
+do
+        PORT="`shuf -i $LOWERPORT-$UPPERPORT -n 1`"
+        ss -lpn | grep -q ":$PORT " || break
+done
+echo $PORT
