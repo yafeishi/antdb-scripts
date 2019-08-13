@@ -746,3 +746,8 @@ do
         ss -lpn | grep -q ":$PORT " || break
 done
 echo $PORT
+
+# java
+javap -verbose BizTagRunDao|grep major
+  major version: 50
+
