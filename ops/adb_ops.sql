@@ -1,53 +1,4 @@
 
---------- 2.1 install start ------------------
-rm -rf * && ../adb_devel/configure --prefix=/postgres/adb2_1/pgsql_xc --with-blocksize=8 --with-segsize=8 --with-wal-segsize=64 --with-wal-blocksize=64 --with-perl --with-python --with-openssl --with-pam   --with-libxml --with-libxslt --enable-thread-safety  --enable-debug  --enable-cassert CFLAGS='-DADB -O0 -ggdb3 -DGTM_DEBUG' && make install-world-contrib-recurse >/dev/null   
-
-
-
-rm -rf * && ../adb_devel/configure --prefix=/home/danghb/adb21/pgsql_xc --with-blocksize=8 --with-segsize=8 --with-wal-segsize=64 --with-wal-blocksize=64 --with-perl --with-python --with-openssl --with-pam  --with-ldap --with-libxml --with-libxslt --enable-thread-safety  --enable-debug  --enable-cassert CFLAGS='-DADB -O0 -ggdb3 -DGTM_DEBUG' && make install-world-contrib-recurse >/dev/null   
-make -j4 all && make install
-cd contrib && make  && make install
-
-
-rm -rf * && ../adb_devel/configure --prefix=/home/dang2.1/pgsql_xc --with-blocksize=8 --with-segsize=8 --with-wal-segsize=64 --with-wal-blocksize=64 --with-perl --with-python --with-openssl --with-pam  --with-ldap --with-libxml --with-libxslt --enable-thread-safety  --enable-debug  --enable-cassert CFLAGS='-DADB -O0 -ggdb3 -DGTM_DEBUG' && make install-world-contrib-recurse >/dev/null   
-make -j4 all && make install
-cd contrib && make  && make install
-
-
-ssh-keygen
-ssh-copy-id -i .ssh/id_rsa.pub localhost2
-ssh-copy-id -i .ssh/id_rsa.pub localhost3
-ssh-copy-id -i .ssh/id_rsa.pub localhost4
-
-
-vi /etc/security/limits.conf
-danghb soft core unlimited
-danghb soft nofile 65536
-danghb hard nofile 65536
-danghb soft nproc 131072
-danghb hard nproc 131072
-danghb soft stack unlimited
-
---------- 2.1 install end------------------
-
---------- 2.2 install start ------------------
-yum -y install libssh2-devel
-rm -rf * && ../adb_devel/configure --prefix=/home/danghb/adb22/pgsql_xc --with-blocksize=8  --with-wal-segsize=64 --with-wal-blocksize=64 --with-perl --with-python --with-openssl --with-pam  --with-ldap --with-libxml --with-libxslt --enable-thread-safety  --enable-debug  --enable-cassert CFLAGS='-DADB -O0 -ggdb3 -DGTM_DEBUG' && make install-world-contrib-recurse >/dev/null   
-rm -rf * && ../20161028/configure --prefix=/home/danghb/adb22/pgsql_xc --with-blocksize=8  --with-wal-segsize=64 --with-wal-blocksize=64 --with-perl --with-python --with-openssl --with-pam  --with-ldap --with-libxml --with-libxslt --enable-thread-safety  --enable-debug  --enable-cassert CFLAGS='-DADB -O0 -ggdb3 -DGTM_DEBUG' && make install-world-contrib-recurse >/dev/null   
-
-rm -rf * && ../adb_devel/configure --prefix=/home/danghb/adb22/pgsql_xc --enable-profiling --with-blocksize=8  --with-wal-segsize=64 --with-wal-blocksize=64 --with-perl --with-python --with-openssl --with-pam  --with-ldap --with-libxml --with-libxslt --enable-thread-safety  --enable-debug  --enable-cassert CFLAGS='-DADB -O0 -ggdb3 -DGTM_DEBUG' && make install-world-contrib-recurse >/dev/null   
-
-
-make -j4 all && make install
-cd contrib && make  && make install
-
-
-export ADB2_2_HOME=/home/danghb/adb22/pgsql_xc
-export ADB2_2_DATA=/home/danghb/adb22/pgsql_data
-export PGHOME=$ADB2_2_HOME
-#export PGDATA=/postgre/pgsql/data
-export PATH=$PGHOME/bin:$PATH:$HOME/bin:/home/danghb/databus/gradle-3.0/bin
-
 
 ############################ adbmgr
 initmgr -D /home/danghb/adb22/adbmgr
@@ -113,36 +64,12 @@ set datanode master all(lock_timeout = '60s');
 pg_ctl start -D /home/danghb/adb22/pgsql_data/coord -Z coordinator -o -i -w -c -l /home/danghb/adb22/pgsql_data/coord/logfile
 pg_ctl stop -D /home/danghb/adb22/pgsql_data/coord -Z coordinator -m smart -o -i -w -c -l /home/danghb/adb22/pgsql_data/coord/logfile
 
+# restoremode
+pg_ctl restart -Z restoremode -D /data/danghb//data/adb40/d1/cd6 -R coordinator -o -i -w -c -l /data/danghb//data/adb40/d1/cd6/logfile
+
 
 ############################ adbmgr
 
-
---------- 2.2 install end------------------
-
-#prompt
-\set PROMPT1 '%n@%m %~%R%# %> > ' 
-
-username@dbname:port>
-\set PROMPT1 '%n@%/:%> %# ' 
-
-%m database server name
-%n database session user name
-%> port
-%/ current database name
-
-\set PROMPT1 'adbmgr> ' 
-\set PROMPT2 'adbmgr-contiune> ' 
-
-# connect
-psql -h localhost -p 15433 -d postgres -U postgres 
-
-\c dangdb postgres  localhost 15432
-\conninfo
-\c dangdb;
-
-\c[onnect] {[DBNAME|- USER|- HOST|- PORT|-] | conninfo}
-
-# objects
 
 create user user01;
 create schema user01 AUTHORIZATION user01;
@@ -602,6 +529,7 @@ SELECT c.relname, count(*) AS buffers
  FROM pg_class c INNER JOIN pg_buffercache b
  ON b.relfilenode = c.relfilenode INNER JOIN pg_database d
  ON (b.reldatabase = d.oid AND d.datname = current_database())
+ where c.relname='reqmatrixlist'
  GROUP BY c.relname
  ORDER BY 2 DESC LIMIT 10; 
  
@@ -1252,13 +1180,16 @@ select datname, usename, application_name, client_addr,
 # sequence 
 2.PG序列的应用 
 查看当前会话的序列值
-SELECT currval('person_id_seq') ;
+SELECT currval('seq_doss') ;
 查看下一个序列值
-SELECT nextval('person_id_seq') ;
+SELECT nextval('seq_doss') ;
 查看全局的最后一个序列值
 select last_value from person_id_seq;
 重置序列值
 select setval(seq_name,new_seq_value);
+select now(),sequencename,last_value,increment_by from pg_sequences where sequencename in 
+alter sequence seq_doss restart with 300000000;
+
       
       
 #  函数属性：
@@ -1375,11 +1306,12 @@ select pid,usename,client_addr,xact_start,wait_event,state,query
 from pg_stat_activity 
 where state<>'idle';
 
-select pid,xact_start,wait_event,state,substr(query,1,70)
-from pg_stat_activity 
+select  to_hex(EXTRACT(EPOCH FROM a.backend_start)::integer) || '.' ||
+       to_hex(a.pid) as "session_id",pid,now()-xact_start as duration,client_addr,wait_event,state,substr(query,1,70)
+from pg_stat_activity  a
 where state<>'idle';
 
- 
+
 select pid,now()-xact_start as duration,wait_event,state,substr(query,1,50)
 from pg_stat_activity 
 where state<>'idle';
@@ -1481,6 +1413,18 @@ PREPARE q1 (numeric) AS
 explain (analyze,verbose) EXECUTE  q1(7);
 
 
+# pg_log
+grep -rn -Eo "duration: [0-9.]+" postgresql-2016-12-12_163730.csv | awk -F ':' '{if ($3 > 3000) {print $1, $3;}}'
+cat 1 |grep duration|awk -F ',' '{print $14}'|awk '{print $2}'|sort -n|awk '{sum+=$1} END {print sum}'
+grep "connect by" postgresql-2019-08-26*.csv|awk -F ',' '{print $14}'|awk -F ':' '{print $2}'|sort |uniq -c|wc -l
 
-declare
+
+# pg_prewarm
+create extension pg_prewarm;
+select * from pg_prewarm('reqmatrixlist'::regclass);
+
+
+# gdb
+gdb  pg_basebackup
+set args -h 10.21.20.17125 -p 52414 -U danghb -D /data/danghb//data/adb40/d1/db6 -Xs -Fp -R --nodename db6 
 
