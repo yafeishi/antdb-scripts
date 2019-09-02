@@ -11,20 +11,20 @@ adblog_sqlinfo.py:
 从日志中捞出sql的相关信息：
 
 ```
-postgres=# \d adblog_sqlinfo
-             Table "public.adblog_sqlinfo"
-   Column    |            Type             | Modifiers 
--------------+-----------------------------+-----------
- nodename    | text                        | 
- logtime     | timestamp without time zone | 
- username    | text                        | 
- dbname      | text                        | 
- connection  | text                        | 
- session_id  | text                        | 
- command_tag | text                        | 
- sqltext     | text                        | 
- param       | text                        | 
- duration    | numeric                     | 
+create table adblog_sqlinfo
+(
+nodename text,    
+logtime timestamp,
+username text,
+dbname text,
+connection text,
+session_id text,
+command_tag text,
+sqltext text,
+param  text,
+duration numeric
+)  
+;
 ```
 然后就可以根据数据进行不同维度的分析。
 
@@ -70,6 +70,22 @@ adblog_errlog_1min.py：
 
 ```
 writelogfields = ['nodename', 'log_time', 'user_name', 'database_name', 'connection_from', 'session_id', 'command_tag', 'error_severity', 'message', 'detail','query']
+
+CREATE TABLE adblog_errlog
+(
+ nodename text,
+ log_time timestamp,
+ user_name text,
+ database_name text,
+ connection_from text,
+ session_id text,
+ command_tag text,
+ error_severity text,
+ message text,
+ detail text,
+ query text,
+);
+
 ```
 ------
 adblog_connreceived.py：捞出日志中接收连接请求的内容。
