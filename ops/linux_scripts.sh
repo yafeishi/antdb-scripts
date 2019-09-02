@@ -562,7 +562,7 @@ q：退出
 
 # strace
 http://linuxtools-rst.readthedocs.io/zh_CN/latest/tool/strace.html
-strace -T -r -c -p 30654
+strace -T -r -c -p 102435
 
 strace -tt -T -v -f  -o /data/strace.log -s 1024 -p 21634
 
@@ -751,3 +751,5 @@ echo $PORT
 javap -verbose BizTagRunDao|grep major
   major version: 50
 
+# 
+echo 3 > /proc/sys/vm/drop_caches
