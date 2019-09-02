@@ -27,6 +27,9 @@ begintime = ''
 endtime = ''
 outcsvfilename = ''
 
+# error_severity from src/backend/utils/error/elog.c
+log_level=['WARNING', 'ERROR', 'FATAL', 'PANIC'] 
+
 # adb connection info
 adb_conn="dbname=shhis user=adbadmin password=123 host=localhost port=5432"
 target_table='adblog_errlog_'+datetime.datetime.now().strftime('%Y%m%d')
@@ -44,8 +47,8 @@ def get_sqlinfo(filename):
                 if logtimestr <= begintime:
                     continue
                 if logtimestr > endtime:
-                    continue 
-                if (row['error_severity'] != "LOG"):
+                    break 
+                if (row['error_severity'] in log_level):
                     logtime = row['log_time']
                     username = row['user_name']
                     dbname = row['database_name']
@@ -91,7 +94,7 @@ def end_process():
         #copy_line = 'then execute "copy adblog_sqlinfo from \''+outcsvfilename+'\'  delimiter \''+out_delimiter+'\' csv;" to load csv data '
 
     except psycopg2.Error as e:
-        print"copy execute errro"
+        print"copy execute error:"
         print e.pgerror
         print e.diag.message_detail
         sys.exit(1)
