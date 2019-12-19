@@ -8,14 +8,10 @@ rpm -qpi redhat-lsb-1.3-3.1.EL3.i386.rpm
 rpm -ivh --prefix=/opt rsync-2.5.7-5.3E.i386.rpm
 ----  error: package mysql-community-client is not relocatable
 rpm -ql rsync   --查看安装路径
-
 rpm -qa | grep namexx
-
 rpm -e 需要卸载的安装包
 rpm -ivh --force --nodeps  telnet-server-0.17-38.el5.i386.rpm 
-
 rpm -ivh --force --nodeps *.rpm
-
 rpm -qpR antdb-4.0.70477ffb-centos6.3.rpm  检查rpm包的依赖。
 
 
@@ -28,6 +24,11 @@ yum deplist package1 #查看程序package1依赖情况
 yum list installed #列出所有已安装的软件包 
 yum list extras  #列出所有已安装但不在 Yum Repository 内的软件包 
 yum info extras #列出所有已安装但不在 Yum Repository 内的软件包信息 
+
+python -c 'import yum, pprint; yb = yum.YumBase(); pprint.pprint(yb.conf.yumvar, width=1)'
+
+yum install yum-utils createrepo
+reposync --gpgcheck -l --repoid=zfs-kmod --download_path=/rpmbuild/zfs-kmod
 
 
 # chkconfig
@@ -178,6 +179,7 @@ grep -E '^model name|^cpu MHz' /proc/cpuinfo
 dd if=/dev/zero of=toto bs=8k count=1024   
 
 time dd if=/dev/zero of=~/test.data bs=8k count=200000 conv=fdatasync  oflag=direct
+time dd if=/dev/zero of=./test.data bs=8k count=2000 conv=fdatasync  oflag=direct
 
 200000+0 records in
 200000+0 records out
@@ -244,6 +246,8 @@ scp datanodeExtraConfig danghb@192.168.1.1:/home/danghb/pgxc_ctl
 awk 'NR%2==0' test2 | sed 's/[ ][ ]*/ /g' 可以重定向 
 awk 'NR%5==0'  1209-cmbase-oracle.log.bak | sed 's/[[:space:]][[:space:]]*//g' > 1209cmoracnt && more 1209cmoracnt
 awk -F, '{if($13="ERROR") print $0}'  postgresql-2016-12-10_073229.csv | more
+cat 1|awk -F ',' '{print $14}'|grep duration|awk -F ':' '{print $2}'|awk '{print $1}'| awk 'BEGIN{total=0}{total+=$1}END{print total}'
+
 
 # 将每一行前导的“空白字符”（空格，制表符）删除
 # 使之左对齐
@@ -385,6 +389,9 @@ cat is /bin/cat
 
 ## version
 cat /etc/redhat-release 
+os=$(lsb_release -a |grep "Distributor ID"|awk '{print $3}')
+lsb=$(lsb_release -a |grep "Release"|awk '{print $2}')
+os_lsb=$(echo "$os$lsb"|sed 's/[A-Z]/\l&/g')
 
 ## ssh  no password
 ssh-keygen
@@ -716,14 +723,20 @@ python -m SimpleHTTPServer 3000
 
 
 # docker 常用命令：
+systemctl start docker
 docker image ls 列出当前已经下载的镜像
 docker pull centos:6.7  拉centos 6.7 的镜像
 docker pull gpmidi/centos-6.3  
-docker run -it -v /data/postgres/rpmbuild:/rpmbuild centos:6.9 bash  启动docker 镜像
+docker run -it -v /data/postgres/rpmbuild:/rpmbuild centos:7.2 bash  启动docker 镜像
 docker attach  contain id 进入镜像
 docker ps 
 通过dockerfile构建加强镜像
 docker build -t antdb_centos:6.7 -f c67.dockerfile .
+
+# 删除容器
+docker rm 3baf88083369 -f
+# 删除镜像
+docker rmi d58d853fe31d
 
 # 加后缀
 for f in `ls *repo`
@@ -753,3 +766,6 @@ javap -verbose BizTagRunDao|grep major
 
 # 
 echo 3 > /proc/sys/vm/drop_caches
+
+
+

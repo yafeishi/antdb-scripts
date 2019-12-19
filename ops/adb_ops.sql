@@ -653,7 +653,19 @@ pg_dump -Fp hongpay --verbose -f hongpay.sql
 
 pg_dumpall -s -f hongpay_metadata.sql 
 
-pg_dump -d dmp -U dmpcs -t tasknode -f tasknode.sql -v
+pg_dump -d dmp -U qcsdmp02 -t tasknode -f tasknode.sql -v
+pg_dump -d dmp -U qcsdmp02 -t task_status -f task_status.sql -v  --inserts
+
+pg_dump -d dmp -U qcsdmp02 -s -f qcsdmp02_metadata.sql -v
+date;
+pg_dump -Fd -f /home/antdb/danghb/dump_qcsdmp02 -j 20  -a -v -d dmp -U qcsdmp02  ;
+date
+
+
+nohup sh dump.sh > dump.log 2>&1 &
+
+pg_dumpall -d dmp -U antdb -s -f dmpall_metadata.sql -v
+pg_dumpall -d dmp -U antdb -s -f dmpall_metadata.sql -v
 
 
 #!/bin/bash
@@ -663,6 +675,7 @@ date "+%Y-%m-%d %H:%M:%S"
 
 
 # pg_restore
+pg_restore -Fd /home/antdb/danghb/dump_qcsdmp02 -j 20  -d dmp -U qcsdmp02 -p 18432 -v -a
 
 # view object
 -- all objects
@@ -801,6 +814,51 @@ order by
     t.relname,
     i.relname; 
     
+# pkey
+select pg_constraint.conname as pk_name,pg_attribute.attname as colname,pg_type.typname as typename from 
+pg_constraint  inner join pg_class 
+on pg_constraint.conrelid = pg_class.oid 
+inner join pg_attribute on pg_attribute.attrelid = pg_class.oid 
+and  pg_attribute.attnum = pg_constraint.conkey[1]
+inner join pg_type on pg_type.oid = pg_attribute.atttypid
+where pg_class.relname in 
+(
+'test_case_run'
+,'test_case_run_info'
+,'test_task_run'
+,'test_biz_run'
+,'biz_plan_info'
+,'biz_sub_type'
+,'biz_schedule'
+,'proemployee'
+,'employee'
+,'flownode'
+,'sys_para_value'
+,'sys_province'
+,'reqmatrix'
+,'reqmatrixlist'
+,'biz_sub_type_cust'
+,'biz_type'
+,'sys_trade'
+,'tasknode'
+,'reqmatrixlistrelation'
+,'biz_node_cust'
+,'biz_status'
+,'taskplan'
+,'biz_branch'
+,'product'
+,'modeltype'
+,'pro_product'
+,'biz_rel_type'
+,'biz_plan'
+,'biz_sub_type'
+,'biz_operate_history'
+,'biz_history_info'
+,'biz_detail'
+,'sys_para_define'
+,'task_emp'
+)
+and pg_constraint.contype='p'
     
 SELECT 
  n.nspname,c.relname,pg_size_pretty(pg_relation_size(c.oid)),
@@ -1138,6 +1196,7 @@ select c.relname,
        substr(a.query,1,100),
        a.xact_start,
        a.client_addr,
+       a.state,
        to_hex(EXTRACT(EPOCH FROM a.backend_start)::integer) || '.' ||
        to_hex(a.pid) as "session_id"
 from pg_class c,
@@ -1146,6 +1205,7 @@ from pg_class c,
 where c.oid = l.relation
 and c.relnamespace >= 2200
 and l.pid=a.pid
+and c.relname='sys_aiemp'
 ; 
 
 select locktype,relation::regclass,pid,mode,granted
@@ -1306,10 +1366,20 @@ select pid,usename,client_addr,xact_start,wait_event,state,query
 from pg_stat_activity 
 where state<>'idle';
 
+
 select  to_hex(EXTRACT(EPOCH FROM a.backend_start)::integer) || '.' ||
-       to_hex(a.pid) as "session_id",pid,now()-xact_start as duration,client_addr,wait_event,state,substr(query,1,70)
-from pg_stat_activity  a
-where state<>'idle';
+       to_hex(a.pid) as "session_id",pid,now()-xact_start as xact_duration,now()-query_start as query_duration,client_addr,wait_event,state,substr(query,1,70)  
+from pg_stat_activity  a  
+where state<>'idle'  
+order by 3 desc;  
+
+select pid,now()-xact_start as duration,client_addr,wait_event,state,query
+from pg_stat_activity 
+where 1=1
+and state<>'idle'
+and client_addr::text like '192.168.15.21%'
+order by 2 desc;  
+
 
 
 select pid,now()-xact_start as duration,wait_event,state,substr(query,1,50)
@@ -1414,17 +1484,69 @@ explain (analyze,verbose) EXECUTE  q1(7);
 
 
 # pg_log
-grep -rn -Eo "duration: [0-9.]+" postgresql-2016-12-12_163730.csv | awk -F ':' '{if ($3 > 3000) {print $1, $3;}}'
+grep -rn -Eo "duration: [0-9.]+" postgresql-2019-11-01_1*.csv | awk -F ':' '{if ($3 > 3000) {print $1, $3;}}'
+grep -rn -Eo "duration: [0-9.]+" postgresql-2019-11-01_1*.csv | awk -F ':' '{if ($3 > 30000) {print $0}}'
 cat 1 |grep duration|awk -F ',' '{print $14}'|awk '{print $2}'|sort -n|awk '{sum+=$1} END {print sum}'
 grep "connect by" postgresql-2019-08-26*.csv|awk -F ',' '{print $14}'|awk -F ':' '{print $2}'|sort |uniq -c|wc -l
 
 
 # pg_prewarm
 create extension pg_prewarm;
-select * from pg_prewarm('reqmatrixlist'::regclass);
+select * from pg_prewarm('tasknode'::regclass);
 
 
 # gdb
 gdb  pg_basebackup
 set args -h 10.21.20.17125 -p 52414 -U danghb -D /data/danghb//data/adb40/d1/db6 -Xs -Fp -R --nodename db6 
+
+# wal
+SELECT pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn() , lsn)) as lsn_lag,now()-(data::json -> 'timestamp')::text::timestamp as replay_lag
+FROM pg_logical_slot_peek_changes('to_ora_116', NULL, 1);
+SELECT pg_wal_lsn_diff(pg_current_wal_lsn() , confirmed_flush_lsn)/1024/1024 as sync_lag 
+FROM pg_replication_slots  where slot_name = 'to_ora_116';
+
+pg_basebackup -h adb05 -p 6432 -U antdb -D /data/antdb/mgr --nodename mgr -Xs -Fp -R
+
+
+2019-10-12 17:40:23.413 CST,"qcsdmp02","dmp",2046,"10.21.20.85:58020",5da18505.7fe,43101,"SELECT",2019-10-12 15:47:17 CST,29/10665,0,LOG,00000,"duration: 906464.425 ms",,,,,,,,,"PostgreSQL JDBC Driver"
+grep "5da18505.7fe,43100" postgresql-2019-10-12_170530.csv
+
+
+
+
+DECLARE
+    V_SQL    VARCHAR2(1000);
+    V_FOUND  NUMBER := 0;
+BEGIN
+    FOR X IN (select TABLE_NAME, COLUMN_NAME
+                from dba_tab_columns
+               where owner = 'QCSDMP02'
+                 and DATA_TYPE = 'NUMBER'
+                 and (DATA_SCALE IS NULL or DATA_SCALE >= 18)
+                 AND TABLE_NAME not IN (select VIEW_NAME from dba_views)
+                 AND TABLE_NAME not IN (select mVIEW_NAME from dba_mviews)
+                 AND TABLE_NAME NOT LIKE 'BIN$%'
+               order by TABLE_NAME
+             )
+    LOOP
+        V_SQL := 'SELECT COUNT(1) FROM QCSDMP02.'
+              || X.TABLE_NAME
+              || ' where trunc("'||X.COLUMN_NAME||'", 18) != "'||X.COLUMN_NAME||'"';
+        BEGIN
+            EXECUTE IMMEDIATE V_SQL INTO V_FOUND;
+            IF V_FOUND >= 1
+            THEN
+                DBMS_OUTPUT.PUT_LINE(RPAD(V_FOUND, 10)||X.TABLE_NAME||'.'||X.COLUMN_NAME);
+            END IF;
+        EXCEPTION
+            WHEN OTHERS
+            THEN
+                DBMS_OUTPUT.PUT_LINE('Error Check: '||V_SQL);
+        END;
+    END LOOP;
+END;
+/
+
+SELECT pg_wal_lsn_diff(pg_current_wal_lsn() , confirmed_flush_lsn)/1024/1024 as sync_lag 
+FROM pg_replication_slots  where slot_name = 'to_ora_116';
 
