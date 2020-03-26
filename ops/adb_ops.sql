@@ -1205,11 +1205,24 @@ from pg_class c,
 where c.oid = l.relation
 and c.relnamespace >= 2200
 and l.pid=a.pid
-and c.relname='sys_aiemp'
+and c.relname like 'abp_ord%'
 ; 
 
 select locktype,relation::regclass,pid,mode,granted
 from pg_locks;
+
+
+select locktype,relation::regclass,pid,mode,granted
+from gv_locks;
+
+
+select relation::regclass,pid,count(*)
+from pg_locks
+group by 1,2;
+
+select relation::regclass,count(*)
+from pg_locks
+group by 1;
    
 ## optimization
 select
@@ -1266,7 +1279,7 @@ order by 2 desc;
 #pgxc_clean
 select * from pg_prepared_xacts;
 
-select pg_xact_status(1875);
+select pg_xact_status(50996670);
 
 rollback prepared 'T1888';
 
@@ -1373,6 +1386,13 @@ from pg_stat_activity  a
 where state<>'idle'  
 order by 3 desc;  
 
+
+select  nodename,application_name,pid,now()-xact_start as xact_duration,now()-query_start as query_duration,client_addr,wait_event,state,substr(query,1,70)  
+from all_activity  a  
+where state<>'idle' 
+and nodename like 'c%' 
+order by 3 desc;  
+
 select pid,now()-xact_start as duration,client_addr,wait_event,state,query
 from pg_stat_activity 
 where 1=1
@@ -1395,7 +1415,7 @@ rollback;
 
 # 表数据分布
 select n.node_name,count(*) 
-from emp e,pgxc_node n
+from qlexpress2_bak e,pgxc_node n
 where e.xc_node_id=n.node_id 
 group by 1;
 

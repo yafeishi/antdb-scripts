@@ -1,5 +1,5 @@
 # cat
-cat /proc/134619/environ | xargs -0 -n 1
+cat /proc/146523/environ | xargs -0 -n 1
 
 
 # rpm -prefix
@@ -30,6 +30,25 @@ python -c 'import yum, pprint; yb = yum.YumBase(); pprint.pprint(yb.conf.yumvar,
 yum install yum-utils createrepo
 reposync --gpgcheck -l --repoid=zfs-kmod --download_path=/rpmbuild/zfs-kmod
 
+
+
+1.在虚拟机加载iso文件。
+
+2.新建文件夹： /media/disk
+
+3.挂载iso： mount /dev/cdrom /media/disk
+
+4.vi /etc/yum.repos.d/dvd.repo
+
+[base]
+
+name=Server
+
+baseurl=file:///media/disk/Server
+
+enable=1
+
+gpgcheck=0
 
 # chkconfig
 chkconfig --list
@@ -247,11 +266,17 @@ awk 'NR%2==0' test2 | sed 's/[ ][ ]*/ /g' 可以重定向
 awk 'NR%5==0'  1209-cmbase-oracle.log.bak | sed 's/[[:space:]][[:space:]]*//g' > 1209cmoracnt && more 1209cmoracnt
 awk -F, '{if($13="ERROR") print $0}'  postgresql-2016-12-10_073229.csv | more
 cat 1|awk -F ',' '{print $14}'|grep duration|awk -F ':' '{print $2}'|awk '{print $1}'| awk 'BEGIN{total=0}{total+=$1}END{print total}'
+ps xuf|grep reduce |awk '{sum+=$3} END {print "Sum = ", sum}'
+cat data|awk '{sum+=$1} END {print "Average = ", sum/NR}'
+cat data|awk 'BEGIN {max = 0} {if ($1>max) max=$1 fi} END {print "Max=", max}'
 
 
+# sed
 # 将每一行前导的“空白字符”（空格，制表符）删除
 # 使之左对齐
 sed 's/^[ \t]*//'
+## 行头添加内容
+sed '1i\sdadd ' file
 
 du -h * | sort -h| tail -10 |sed -e 's/^/WARN：/' 
 
@@ -705,13 +730,15 @@ int main()
   printf("%s\n", *p);
 
 }
-gcc -g -o core_test core_test.c
-./core_test
+gcc -g -o coretest coretest.c
+./coretest
 
 
 
 # split file
 split -b 1024MB -d part.tbl.bak split/part.tbl.bak
+split -l 20000000 -d part.tbl.bak split/part.tbl.bak
+
 
 
 # linux 如何显示一个文件的某几行(中间几行)
@@ -764,8 +791,11 @@ echo $PORT
 javap -verbose BizTagRunDao|grep major
   major version: 50
 
+unzip -p postgresql-42.2.9.jar "META-INF/MANIFEST.MF"|grep Build-Jdk
 # 
 echo 3 > /proc/sys/vm/drop_caches
 
 
 
+# git
+git symbolic-ref --short -q HEAD
