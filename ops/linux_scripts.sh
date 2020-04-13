@@ -799,3 +799,49 @@ echo 3 > /proc/sys/vm/drop_caches
 
 # git
 git symbolic-ref --short -q HEAD
+# git stash 暂存 修改的代码
+git stash list
+git stash save slot
+git stash apply stash@{2}
+
+# 每次都要输入密码
+git config --global credential.helper store
+git config credential.helper store
+git pull
+# 本地已有的仓库上传到远程
+git remote add gitlab http://192.168.56.11:xxx/ADB/ora2pg
+git push -u gitlab dev
+# 删除分支
+git branch -a
+git push origin --delete patch-4
+# 打patch
+git apply xxx.patch
+# 撤掉patch
+git apply xxx.patch -R
+# 同步某个文件夹
+mkdir devSelfTester
+cd devSelfTester
+git init
+git remote add origin http://10.20.16.216:9090/ADB/antdb_autotest -t test_tool
+git config core.sparsecheckout true
+echo "TestTool/devSelfTesterV2/*" >> .git/info/sparse-checkout 
+git pull origin test_tool
+[danghb@intel175 devSelfTester]$ tree .
+
+
+# lvm
+# 初始化/dev/sdb  创建流程：新建主分区-编号为1-容量所有-选择格式为LVM-保存
+fdisk /dev/sdb
+# 创建PV
+pvcreate /dev/sdb1
+pvdisplay
+# 创建VG
+vgcreate disk01 /dev/sdb1
+vgdisplay 
+# 从VG中划分LV
+lvcreate -L 100M -n LVM_date01 disk01
+lvdisplay 
+# 格式化、挂载分区
+mkfs.ext4 /dev/disk01/LVM_date01 
+mkdir -p /data/
+mount /dev/disk01/LVM_date01 /data/

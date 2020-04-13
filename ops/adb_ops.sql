@@ -1501,6 +1501,7 @@ EXPLAIN ANALYZE SELECT count(*),sum(a) FROM t_llvm1 WHERE (a+b) > 10;
 PREPARE q1 (numeric) AS
      select * from reqmatrixlist req where req.biztype = $1;
 explain (analyze,verbose) EXECUTE  q1(7);
+deallocate q1;
 
 
 # pg_log
