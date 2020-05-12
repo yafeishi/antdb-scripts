@@ -567,6 +567,14 @@ from   pg_stat_database
 where  datname = 'manu_db' ;    
 
 
+
+# invalid index
+select indrelid::regclass,indexrelid::regclass,indkey
+from pg_index
+where indisvalid =false
+order by 1,2;
+
+
 # execute plan
 user01@testdb:5532 > explain select * from test where id=1;
                               QUERY PLAN                              
@@ -1213,7 +1221,7 @@ from pg_locks;
 
 
 select locktype,relation::regclass,pid,mode,granted
-from gv_locks;
+from (select * from gv_locks ) a;
 
 
 select relation::regclass,pid,count(*)
@@ -1509,7 +1517,9 @@ grep -rn -Eo "duration: [0-9.]+" postgresql-2019-11-01_1*.csv | awk -F ':' '{if 
 grep -rn -Eo "duration: [0-9.]+" postgresql-2019-11-01_1*.csv | awk -F ':' '{if ($3 > 30000) {print $0}}'
 cat 1 |grep duration|awk -F ',' '{print $14}'|awk '{print $2}'|sort -n|awk '{sum+=$1} END {print sum}'
 grep "connect by" postgresql-2019-08-26*.csv|awk -F ',' '{print $14}'|awk -F ':' '{print $2}'|sort |uniq -c|wc -l
-
+grep -E "ERROR|FATAL" postgresql-2020-04-21_16*.csv|awk -F ',' '{print $1,$14,$20}'|more
+grep -E "ERROR|FATAL" postgresql-2020-04-21_16*.csv|awk -F ',' '{print $14}'|sort |uniq -c
+grep "double get"  postgresql-2020-04-21*.csv|awk -F ',' '{print $9}'|sort |uniq -c
 
 # pg_prewarm
 create extension pg_prewarm;
@@ -1525,6 +1535,7 @@ SELECT pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn() , lsn)) as lsn_lag,no
 FROM pg_logical_slot_peek_changes('to_ora_116', NULL, 1);
 SELECT pg_wal_lsn_diff(pg_current_wal_lsn() , confirmed_flush_lsn)/1024/1024 as sync_lag 
 FROM pg_replication_slots  where slot_name = 'to_ora_116';
+SELECT pg_size_pretty(pg_current_wal_lsn() - '0/00000000'::pg_lsn);
 
 pg_basebackup -h adb05 -p 6432 -U antdb -D /data/antdb/mgr --nodename mgr -Xs -Fp -R
 
@@ -1570,4 +1581,21 @@ END;
 
 SELECT pg_wal_lsn_diff(pg_current_wal_lsn() , confirmed_flush_lsn)/1024/1024 as sync_lag 
 FROM pg_replication_slots  where slot_name = 'to_ora_116';
+
+
+# alter table 
+ALTER TABLE bsw_menu ALTER COLUMN isenabled DROP DEFAULT;
+ALTER TABLE bsw_menu ALTER COLUMN isenabled TYPE boolean USING (isenabled::boolean);
+ALTER TABLE bsw_menu ALTER COLUMN isenabled set DEFAULT true;
+
+
+
+create table t_test (fee varchar, feegroup varchar);
+insert into t_test values ('60','10|20|30');
+insert into t_test values ('85','15|60');
+
+select fee,
+(select sum(col::int) from (SELECT regexp_split_to_table(replace(feegroup,'|',' '),' ') as col) as b) as feegroup_sum
+from t_test;
+
 

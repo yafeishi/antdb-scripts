@@ -83,7 +83,7 @@ CREATE TABLE adblog_errlog
  error_severity text,
  message text,
  detail text,
- query text,
+ query text
 );
 
 ```

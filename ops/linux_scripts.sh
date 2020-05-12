@@ -161,11 +161,13 @@ sar -f /var/log/sa/sa03
 #查看指定文件1/5/15分钟平均负载记录
 sar -q -f /var/log/sa/sa03
 #查看指定文件7点到9点CPU使用记录，如要看负载加参数-q
-ddsar -s 07:00:00 -e 10:00:00 -f /var/log/sa/sa03
+sar -s 07:00:00 -e 10:00:00 -f /var/log/sa/sa03
 
 sar -q: 查看平均负载
 sar -r： 指定-r之后，可查看物理内存使用状况；
 sar -W：查看页面交换发生状况
+
+sar -n DEV -s 21:2:00 -e 10:00:00  -f /var/log/sa/sa17
 
 sar参数说明
 -A 汇总所有的报告
@@ -259,6 +261,7 @@ du -sh /adbdata/pgxc_data/db1/pg_xlog |awk '{print $1}'
 # scp
 scp -r pgsql_xc danghb@192.168.1.1:/home/danghb/adb21
 scp datanodeExtraConfig danghb@192.168.1.1:/home/danghb/pgxc_ctl
+scp root@10.6.159.147:/opt/soft/demo.tar /opt/soft/
 
 
 # awk
@@ -485,6 +488,8 @@ nmon
 nmon -h
 nmon -f -t -s 60 -f 43200
 nmon -f -T -s 30 -f 180
+
+nmon -s 30 -c 10 -T -f -m /data/antdb/hostmon/nmon
 
 
 ## iostat
@@ -827,6 +832,8 @@ git config core.sparsecheckout true
 echo "TestTool/devSelfTesterV2/*" >> .git/info/sparse-checkout 
 git pull origin test_tool
 [danghb@intel175 devSelfTester]$ tree .
+# 从commit 获取patch
+git format-patch -2  4d195f24 af3aa076
 
 
 # lvm
@@ -845,3 +852,21 @@ lvdisplay
 mkfs.ext4 /dev/disk01/LVM_date01 
 mkdir -p /data/
 mount /dev/disk01/LVM_date01 /data/
+
+
+# vscode
+# 删除空行
+^\s*(?=\r?$)\n
+
+
+
+# swap
+swapoff -a
+swapon -a
+
+
+# selinux
+/usr/sbin/sestatus -v 
+setenforce 0    #临时
+/etc/selinux/config
+SELINUX=disabled
