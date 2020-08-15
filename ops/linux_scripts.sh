@@ -1,5 +1,5 @@
 # cat
-cat /proc/146523/environ | xargs -0 -n 1
+cat /proc/15494/environ | xargs -0 -n 1
 
 
 # rpm -prefix
@@ -153,6 +153,10 @@ ps auxw|head -1;ps auxw|sort -rn -k10|head -10
 cat /proc/2736/status ; echo -e "\n"; cat /proc/11184/stack
 
 ps -weo pid,stat,wchan:32,args | grep postgres
+
+
+=$ ps -u danghb o pid= | sed 's#.*#/proc/&/smaps#' | xargs sudo grep ^Pss: | awk '{A+=$2} END{print A}'
+
 
 
 # sar
@@ -508,6 +512,15 @@ tcpdump -i eth1 net 192.168
 tcpdump -i eth1 tcp
 tcpdump tcp port 5432 -i eno16777728 -nnX -s0  -w 1234.cap
 
+
+sudo tcpdump tcp port 52641 -i eno1 -nnX -s0  -w 176_dn.cap
+sudo tcpdump tcp port 35564 -i eno1 -nnX -s0  -w 175_gc.cap
+
+sudo tcpdump tcp port 35564 -i eno1 -nnX -s0  -w 175_gc_pool.cap
+
+
+sudo ifconfig eno1 mtu 3000
+
 非 : ! or "not" (去掉双引号)  
 且 : && or "and"  
 或 : || or "or"
@@ -599,7 +612,7 @@ q：退出
 
 # strace
 http://linuxtools-rst.readthedocs.io/zh_CN/latest/tool/strace.html
-strace -T -r -c -p 102435
+strace -T -r -c -p 163197
 
 strace -tt -T -v -f  -o /data/strace.log -s 1024 -p 21634
 
@@ -646,6 +659,7 @@ dstat --top-mem --top-io --top-cpu
 nohup dstat -amlspt  --output  /home/sh2.2/hostmon/dstat.csv  --noupdate 5 8640 2>&1 &
 dstat -c -y -l --proc-count --top-cpu
 dstat -g -l -m -s --top-mem
+dstat -t --top-cpu  --top-io --top-mem
 
 dstat -tc --top-cpu -dr --top-io -glm --top-mem -ns --output t.csv
 # pagesize 
@@ -759,7 +773,7 @@ systemctl start docker
 docker image ls 列出当前已经下载的镜像
 docker pull centos:6.7  拉centos 6.7 的镜像
 docker pull gpmidi/centos-6.3  
-docker run -it -v /data/postgres/rpmbuild:/rpmbuild centos:7.2 bash  启动docker 镜像
+docker run -it -v /data/rpmbuild:/rpmbuild centos:7.2 bash  启动docker 镜像
 docker attach  contain id 进入镜像
 docker ps 
 通过dockerfile构建加强镜像
@@ -835,6 +849,10 @@ git pull origin test_tool
 # 从commit 获取patch
 git format-patch -2  4d195f24 af3aa076
 
+error: RPC failed; result=22, HTTP code = 404
+AntDB.git
+
+
 
 # lvm
 # 初始化/dev/sdb  创建流程：新建主分区-编号为1-容量所有-选择格式为LVM-保存
@@ -870,3 +888,32 @@ swapon -a
 setenforce 0    #临时
 /etc/selinux/config
 SELINUX=disabled
+
+# mount
+mkdir -p /home/mass/ramdisk/
+mount -t tmpfs -o size=10g tmpfs /home/mass/ramdisk/
+chown mass:mass /home/mass/ramdisk/
+
+# perf top
+perf top -p 13499 -v -g
+perf record -F 99 -a -g -p 13499  -- sleep 60 #采集60秒以后会保存在文件perf.data中，然后使用perf report工具进行分析
+perf report --stdio
+
+-e record指定PMU事件
+    --filter  event事件过滤器
+-a  录取所有CPU的事件
+-p  录取指定pid进程的事件
+-o  指定录取保存数据的文件名
+-g  使能函数调用图功能
+-C 录取指定CPU的事件
+
+
+/opt/MegaRAID/MegaCli/MegaCli64 -cfgdsply -aALL
+https://wsgzao.github.io/post/megacli64/
+
+
+cat /sys/block/sda/queue/rotational   #表明sda这块硬盘是固态硬盘(SSD)
+0
+cat /sys/block/sdb/queue/rotational   #表明sdb这块硬盘是机械硬盘(HDD)
+1
+

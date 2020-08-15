@@ -92,11 +92,11 @@ fi
 
 orahost=$1
 #orasid='orcl'
-orasid='adb'
+orasid=$2
 oraport=1521
-username=$2
-password=$3
-object_type=$4
+username=$3
+password=$4
+object_type=$5
 object_types=(PROCEDURE function view)
 
 ora_conn=${username}/${password}@${orahost}:${oraport}/${orasid}

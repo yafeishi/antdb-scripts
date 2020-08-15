@@ -1216,8 +1216,28 @@ and l.pid=a.pid
 and c.relname like 'abp_ord%'
 ; 
 
+
+select distinct l.relation,l.node_name,
+       l.pid,
+       l.mode,
+       l.granted,
+       substr(a.query,1,100),
+    --    a.query,
+       a.xact_start,
+       a.client_addr,
+       a.state
+from 
+     gv_locks l,
+     gv_stat_activity a
+where 1=1
+and l.node_oid=a.node_oid
+and l.pid=a.pid
+and l.relation like '%tb_settle_toll_error%'
+order by 1,2,3
+; 
+
 select locktype,relation::regclass,pid,mode,granted
-from pg_locks;
+from pg_locks where relation::regclass::text='tablename'
 
 
 select locktype,relation::regclass,pid,mode,granted
@@ -1287,9 +1307,15 @@ order by 2 desc;
 #pgxc_clean
 select * from pg_prepared_xacts;
 
-select pg_xact_status(50996670);
+select pg_xact_status(50996670) ;
 
-rollback prepared 'T1888';
+select pg_xact_status(substr(gid,2)::bigint) from pg_prepared_xacts;
+
+select substr(gid,2) from pg_prepared_xacts;
+
+select 'rollback prepared '''||gid||''';' from pg_prepared_xacts where  to_char(prepared,'yyyy-mm-dd hh24:mi') ='2020-07-17 14:30';
+
+rollback prepared 'T784168121';
 
 rollback prepared T80224196
 
@@ -1423,7 +1449,7 @@ rollback;
 
 # 表数据分布
 select n.node_name,count(*) 
-from qlexpress2_bak e,pgxc_node n
+from dr_gprs_731_3_202007 e,pgxc_node n
 where e.xc_node_id=n.node_id 
 group by 1;
 
@@ -1598,4 +1624,14 @@ select fee,
 (select sum(col::int) from (SELECT regexp_split_to_table(replace(feegroup,'|',' '),' ') as col) as b) as feegroup_sum
 from t_test;
 
+
+# show_param
+drop function show_param;
+create or replace function show_param(param text) returns  TABLE (
+    name text
+   ,setting text
+   ,unit text) AS
+$$
+ select name,setting,unit from pg_settings where name ~  $1;
+$$ LANGUAGE 'sql';
 
