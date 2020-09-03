@@ -16,6 +16,6 @@ if [ `echo "$memfree > $nodropnum" | bc` -eq 1 ];then
 elif [ `echo "$memfree >= $dropnum" | bc` -eq 1 ];then
   sysctl -w vm.drop_caches=2
 elif [ `echo "$memfree < $dropnum" | bc` -eq 1 ];then
-  sysctl -w vm.drop_caches=3
+  sync && sysctl -w vm.drop_caches=3
 fi  
   
